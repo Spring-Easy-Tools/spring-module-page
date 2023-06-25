@@ -1,0 +1,9 @@
+{
+  "hosting": [
+    {
+      "target": "spring-module-page",
+      "source": ".",
+      "frameworksBackend": {}
+    }
+  ]
+}
