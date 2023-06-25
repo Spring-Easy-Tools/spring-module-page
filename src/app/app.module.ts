@@ -12,7 +12,7 @@ import {RouterOutlet} from "@angular/router";
 import {MatButtonModule} from "@angular/material/button";
 import {HttpClientModule} from "@angular/common/http";
 import {MatToolbarModule} from "@angular/material/toolbar";
-import { DataComponent } from './data/data.component';
+import {DataComponent} from './data/data.component';
 
 @NgModule({
   declarations: [
