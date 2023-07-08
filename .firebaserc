@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "spring-tools-234ee": {
+      "hosting": {
+        "spring-module-page": [
+          "spring-tools-234ee"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "spring-tools-234ee"
+  }
+}
