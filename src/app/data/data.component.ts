@@ -1,5 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {DataProviderService, StatsDto, UserSettingsDto} from "./spring/data-provider.service";
+import {DataProviderService} from "./spring/data-provider.service";
+import {UserSettingsDto} from "./spring/user-settings.dto";
+import {StatsDto} from "./spring/stats.dto";
 
 const loading = "loading...";
 

@@ -10,11 +10,11 @@
 
 <firebase-ui
   (signInFailure)="onSignInFailure($event)"
-  (signInSuccessWithAuthResult)="onSignInSuccessWithAuthResult($event)"
+  (signInSuccessWithAuthResult)="onSignInSuccess($event)"
 />
 
 <div class="logout_layout">
-  <button (click)="onLogoutClick($event)" *ngIf="angularFireAuth.user| async" mat-raised-button style="">
+  <button (click)="onLogoutClick($event)" *ngIf="firebaseService.user$ | async" mat-raised-button style="">
     Log Out
   </button>
 </div>

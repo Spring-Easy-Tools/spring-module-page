@@ -1,6 +1,6 @@
-import { TestBed } from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 
-import { SpringAuthorizationService } from './spring-authorization.service';
+import {SpringAuthorizationService} from './spring-authorization.service';
 
 describe('SpringAuthorizationService', () => {
   let service: SpringAuthorizationService;

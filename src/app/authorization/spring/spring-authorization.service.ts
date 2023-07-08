@@ -1,84 +1,57 @@
-import { Injectable } from "@angular/core"
-import { HttpClient, HttpHeaders } from "@angular/common/http"
-import { environment } from "../../../environments/environment"
-import {lastValueFrom, mergeMap, Observable} from "rxjs"
+import {Injectable} from "@angular/core"
+import {HttpClient, HttpHeaders} from "@angular/common/http"
+import {environment} from "../../../environments/environment"
+import {filter, map, mergeMap} from "rxjs"
 import {FirebaseService} from "../firebase/firebase.service";
-import {UserSettingsDto} from "../../data/spring/data-provider.service";
-
-interface AuthorizationHeader {
-
-  authScheme: "FIREBASE"
-  principal: string
-  credentials: string
-}
+import {User} from "@angular/fire/auth";
 
 @Injectable({
   providedIn: "root",
 })
 export class SpringAuthorizationService {
 
-  constructor(private http: HttpClient, private firebaseService: FirebaseService) {
+  constructor(readonly http: HttpClient, readonly firebaseService: FirebaseService) {
   }
 
-  private withAuthHeader() {
-    return this.firebaseService.getAuthorizationHeader();
+  public pingAuth() {
+    return this.formBearerHeader().pipe(
+      map(toHeaders),
+      mergeMap(httpHeaders => this.makePingRequest(httpHeaders))
+    )
   }
 
-  private withParams(headers: HttpHeaders) {
-    return {headers: headers, withCredentials: true}
+  public springAuth() {
+    return this.formBearerHeader().pipe(
+      map(toHeaders),
+      mergeMap(httpHeaders => this.makeAuthRequest(httpHeaders))
+    )
   }
 
-  separateAuth() {
-    return this.withAuthHeader()
-      .pipe(mergeMap(value => this.http.get<void>(
-        `${environment.serverUrl}/oauth/firebase`, this.withParams(value))))
+  public formBearerHeader() {
+    return this.firebaseService.user$.pipe(
+      filter(value => value != null),
+      map(value => value as User),
+      mergeMap(value => value.getIdToken()),
+      map(value => `Bearer ${value}`)
+    )
   }
 
-  async authorizeSpringServer(userUid: string, userIdToken: string) {
-    let authorizationHeader: AuthorizationHeader = {
-      authScheme: "FIREBASE",
-      principal: userUid,
-      credentials: userIdToken,
-    }
-    let httpHeaders = new HttpHeaders({ Authorization: JSON.stringify(authorizationHeader) })
-    console.log(JSON.stringify(httpHeaders))
-    let authResult = await lastValueFrom(this.http.get(
-      `${environment.serverUrl}/auth/firebase`,
-      {
-        headers: httpHeaders,
-        withCredentials: true,
-        observe: "response",
-      }))
-    console.log(`Auth result: ${JSON.stringify(authResult)}`)
-    let boxes = await lastValueFrom(this.http.get(
-      `${environment.serverUrl}/box`,
-      {
-        withCredentials: true,
-        observe: "response",
-      }))
-    console.log(`Boxes: ${JSON.stringify(boxes)}`)
-    return authResult
+  private makeAuthRequest(headers: HttpHeaders) {
+    return this.http.get(`${environment.serverUrl}/oauth/firebase`, withOptions(headers));
   }
 
-  async authNew(token: string) {
-    let httpHeaders = new HttpHeaders({ Authorization: `Bearer ${token}` })
-    let authResult = await lastValueFrom(this.http.get(
-      `${environment.serverUrl}/auth`,
-      {
-        headers: httpHeaders,
-        // withCredentials: true,
-        observe: "response",
-      }))
-    console.log(`Auth result: ${JSON.stringify(authResult)}`)
-    let boxes = await lastValueFrom(this.http.get(
-      `${environment.serverUrl}/box?page=0&size=5`,
-      {
-        headers: httpHeaders,
-        // withCredentials: true,
-        observe: "response",
-      }))
-    console.log(`Boxes: ${JSON.stringify(boxes)}`)
-    return boxes
+  private makePingRequest(headers: HttpHeaders) {
+    return this.http.get(`${environment.serverUrl}/ping/auth`, withOptions(headers));
   }
+}
 
+export function toHeaders(bearerHeader: string) {
+  return new HttpHeaders({Authorization: bearerHeader});
+}
+
+export function withOptions(headers: HttpHeaders) {
+  return {
+    headers: headers,
+    withCredentials: true,
+  }
 }

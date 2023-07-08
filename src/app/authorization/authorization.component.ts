@@ -1,10 +1,11 @@
 import {Component, OnInit} from "@angular/core"
 import {ActivatedRoute, Router} from "@angular/router"
 import {FirebaseUISignInFailure, FirebaseUISignInSuccessWithAuthResult} from "firebaseui-angular"
-import {AngularFireAuth} from "@angular/fire/compat/auth"
 import {SpringAuthorizationService} from "./spring/spring-authorization.service"
 import {FirebaseService} from "./firebase/firebase.service";
-import {lastValueFrom} from "rxjs";
+import {firstValueFrom} from "rxjs";
+import {User} from "@angular/fire/auth";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 export const authRecordParameter = "auth-record-uuid"
 
@@ -18,45 +19,52 @@ export class AuthorizationComponent implements OnInit {
   public authRecordUuid: string | null = null;
 
   constructor(
-    public angularFireAuth: AngularFireAuth,
-    public springAuthorizationService: SpringAuthorizationService,
-    public activatedRoute: ActivatedRoute,
-    public router: Router,
-    public firebaseService: FirebaseService,
+    readonly springAuthorizationService: SpringAuthorizationService,
+    readonly activatedRoute: ActivatedRoute,
+    readonly router: Router,
+    readonly firebaseService: FirebaseService,
+    readonly snackBar: MatSnackBar,
   ) {
   }
 
   async ngOnInit() {
-    let authRecordUuid = this.activatedRoute.snapshot.params[authRecordParameter]
-    this.activatedRoute.params.subscribe(value => this.authRecordUuid = value[authRecordParameter])
-    if (await lastValueFrom(this.angularFireAuth.user) != null) {
-      console.log("Юзер авторизован, делаем редирект...")
-      this.router.navigateByUrl("/data").then()
-    } else {
-      this.angularFireAuth.signOut().then()
-    }
+    this.authRecordUuid = this.activatedRoute.snapshot.params[authRecordParameter]
+    this.firebaseService.user$.subscribe(value => this.checkAuthorization(value))
   }
 
   onSignInFailure($event: FirebaseUISignInFailure) {
-    alert(`Провал: ${JSON.stringify($event)}`)
+    this.snackBar.open(`Код ошибки авторизации Firebase: ${$event.code}`)
   }
 
-  async onSignInSuccessWithAuthResult($event: FirebaseUISignInSuccessWithAuthResult) {
-    console.log(`Успех: ${JSON.stringify($event)}`)
-    // let user = $event.authResult.user
-    // let creds = $event.authResult.credential
-    // let userUid = $event.authResult.user?.uid!
-    // let idToken = await $event.authResult.user?.getIdToken(true)!
-    // this.firebaseService.authToken = idToken
-    // // let authResult = await this.springAuthorizationService.authorizeSpringServer(userUid, idToken)
-    // let authResult = await this.springAuthorizationService.authNew(idToken)
-    // console.log(`Успех: ${JSON.stringify(authResult)}`)
-    await lastValueFrom(this.springAuthorizationService.separateAuth());
-    this.router.navigateByUrl("/data").then()
+  async onSignInSuccess($event: FirebaseUISignInSuccessWithAuthResult) {
+    this.snackBar.open(`Успешная авторизация`)
+    try {
+      await firstValueFrom(this.springAuthorizationService.springAuth())
+      this.router.navigateByUrl("/data").then()
+    } catch (e) {
+      this.snackBar.open(`Ошибка авторизации Spring: ${e}`)
+      await this.firebaseService.logout()
+    }
   }
 
-  onLogoutClick($event: MouseEvent) {
-    this.angularFireAuth.signOut().then()
-    this.router.navigateByUrl("/auth").then()
+  async onLogoutClick($event: MouseEvent) {
+    await this.firebaseService.logout()
+    await this.router.navigateByUrl("/auth")
+  }
+
+  private async checkAuthorization(user: User | null) {
+    console.log("Проверяем имеющуюся авторизацию")
+    if (user == null) {
+      console.log("Пользователь Firebase не найден, разлогиниваем...")
+      await this.firebaseService.logout()
+    } else {
+      try {
+        console.log("Пользователь Firebase найден, пингуем авторизацию на сервере...")
+        await firstValueFrom(this.springAuthorizationService.pingAuth())
+        this.router.navigateByUrl("/data").then()
+      } catch (e) {
+        this.snackBar.open(`Успешная авторизация`)
+      }
+    }
   }
 }
