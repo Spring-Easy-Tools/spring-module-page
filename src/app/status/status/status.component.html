@@ -1,0 +1,20 @@
+<p>status works!</p>
+
+<h2>Spring Server: {{ serverOnline ? "online" : "offline" }}</h2>
+
+<div id="container">
+
+    <div class="flex-item">
+        <h2>Authorization status</h2>
+        <p>Firebase: {{ firebaseStatus ? firebaseStatus : false }}</p>
+        <p>Spring: {{ serverAuth }}</p>
+        <app-authorization></app-authorization>
+    </div>
+
+    <div class="flex-item">
+        <h2>Data status</h2>
+        <p>Full Statistic: {{ allDataStatus }}</p>
+        <p>My Statistic:  {{ myDataStatus }}</p>
+    </div>
+
+</div>

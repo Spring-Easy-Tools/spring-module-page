@@ -1,23 +1,25 @@
-import {inject, Injectable} from '@angular/core';
-import {Auth, User, user} from '@angular/fire/auth';
-import {distinctUntilChanged} from "rxjs";
+import {inject, Injectable} from "@angular/core";
+import {Auth, authState, User} from "@angular/fire/auth";
+import {NGXLogger} from "ngx-logger";
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: "root",
 })
 export class FirebaseService {
 
-  private auth: Auth = inject(Auth);
-  user$ = user(this.auth).pipe(distinctUntilChanged());
+    auth: Auth = inject(Auth);
+    public authState$ = authState(this.auth);
 
-  constructor() {
-    this.user$.subscribe((user: User | null) => {
-      // todo: просто дебаг, потом удалить
-      console.log(`Новый Firebase User: ${JSON.stringify(user)}`);
-    })
-  }
+    constructor(private readonly logger: NGXLogger) {
+        this.authState$.subscribe(value => this.logAuthState(value));
+    }
 
-  public async logout() {
-    await this.auth.signOut()
-  }
+    public async logout() {
+        await this.auth.signOut();
+    }
+
+    private logAuthState(value: User | null) {
+        this.logger.trace("Регистрация пользователя Firebase", value);
+    }
+
 }

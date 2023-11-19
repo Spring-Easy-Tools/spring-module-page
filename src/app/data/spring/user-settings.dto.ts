@@ -1,3 +1,3 @@
 export interface UserSettingsDto {
-  name: any
+    name: any;
 }
