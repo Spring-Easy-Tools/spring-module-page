@@ -1,5 +1,7 @@
-import {firebase, firebaseui} from "firebaseui-angular";
 import * as firebaseCredentials from "../assets/credentials/firebase_credentials.json";
+/** Сломается, если перевести на default импорт */
+import * as firebaseui from 'firebaseui';
+import firebase from "firebase/compat/app";
 
 export const environment = {
   appName: "Spring Tools Debug Example",

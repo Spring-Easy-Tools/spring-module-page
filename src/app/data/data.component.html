@@ -14,9 +14,9 @@
 
   <div *ngIf="allStatistic != null">
     <p>Statistic:</p>
-    <p>All Boxes: {{allStatistic.boxes}}</p>
-    <p>All Trucks: {{allStatistic.trucks}}</p>
-    <p>All Orders: {{allStatistic.orders}}</p>
+    <p>All Boxes: {{allStatistic!.boxes!}}</p>
+    <p>All Trucks: {{allStatistic!.trucks!}}</p>
+    <p>All Orders: {{allStatistic!.orders!}}</p>
   </div>
 
   <div>

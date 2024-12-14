@@ -8,10 +8,7 @@
 
 <p>authorization works!</p>
 
-<firebase-ui
-  (signInFailure)="onSignInFailure($event)"
-  (signInSuccessWithAuthResult)="onSignInSuccess($event)"
-/>
+<div id="firebase-ui"></div>
 
 <div class="logout_layout">
   <button (click)="onLogoutClick($event)" *ngIf="firebaseService.user$ | async" mat-raised-button style="">
