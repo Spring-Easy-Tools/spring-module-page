@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import {environment} from "../../../environments/environment";
 import {map, mergeMap, Observable} from "rxjs";
 import {toHeaders, SpringAuthorizationService} from "../../authorization/spring/spring-authorization.service";

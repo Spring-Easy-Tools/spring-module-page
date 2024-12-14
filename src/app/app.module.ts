@@ -7,7 +7,7 @@ import {environment} from "../environments/environment";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {RouterOutlet} from "@angular/router";
 import {MatButtonModule} from "@angular/material/button";
-import {HttpClientModule} from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {DataComponent} from './data/data.component';
 import {initializeApp, provideFirebaseApp} from '@angular/fire/app';
@@ -18,32 +18,26 @@ import {AngularFireAuthModule} from "@angular/fire/compat/auth";
 import {AngularFireModule} from "@angular/fire/compat";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    AuthorizationComponent,
-    DataComponent,
-  ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    RouterOutlet,
-    MatButtonModule,
-    MatToolbarModule,
-    provideFirebaseApp(() => initializeApp(environment.firebaseCredentials)),
-    provideAnalytics(() => getAnalytics()),
-    provideAuth(() => getAuth()),
-    AngularFireModule.initializeApp(environment.firebaseCredentials),
-    AngularFireAuthModule,
-    FirebaseUIModule.forRoot(environment.firebaseUiAuthConfig),
-    MatSnackBarModule,
-  ],
-  providers: [
-    ScreenTrackingService, UserTrackingService
-  ],
-  bootstrap: [AppComponent],
-})
+@NgModule({ declarations: [
+        AppComponent,
+        AuthorizationComponent,
+        DataComponent,
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        RouterOutlet,
+        MatButtonModule,
+        MatToolbarModule,
+        provideFirebaseApp(() => initializeApp(environment.firebaseCredentials)),
+        provideAnalytics(() => getAnalytics()),
+        provideAuth(() => getAuth()),
+        AngularFireModule.initializeApp(environment.firebaseCredentials),
+        AngularFireAuthModule,
+        FirebaseUIModule.forRoot(environment.firebaseUiAuthConfig),
+        MatSnackBarModule], providers: [
+        ScreenTrackingService, UserTrackingService,
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class AppModule {
 }
